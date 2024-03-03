@@ -6,6 +6,7 @@ import { Company } from '@/companies/entities/company.entity';
 import { NafCode } from '@/companies/entities/naf-code.entity';
 import { RefreshNafCodesHandler } from '@/companies/commands/handlers/refresh-naf-codes.handler';
 import { RefreshNafCodesCommand } from '@/companies/commands/impl/refresh-naf-codes.command';
+import { GetMarketLabelsIndexedByNafCodeHandler } from '@/companies/queries/handlers/get-market-labels-indexed-by-naf-code.handler';
 import { NafCodeRepository } from '@/companies/repositories/naf-code.repository';
 
 @Module({
@@ -16,7 +17,11 @@ import { NafCodeRepository } from '@/companies/repositories/naf-code.repository'
       timeout: 5000,
     }),
   ],
-  providers: [NafCodeRepository, RefreshNafCodesHandler],
+  providers: [
+    NafCodeRepository,
+    RefreshNafCodesHandler,
+    GetMarketLabelsIndexedByNafCodeHandler,
+  ],
 })
 export class CompaniesModule implements OnApplicationBootstrap {
   constructor(private readonly commandBus: CommandBus) {}
