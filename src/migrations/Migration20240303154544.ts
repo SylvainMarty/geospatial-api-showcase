@@ -4,10 +4,10 @@ export class Migration20240303154544 extends Migration {
   async up(): Promise<void> {
     this.addSql('CREATE EXTENSION IF NOT EXISTS btree_gist;'); // We need this extension to use GIST index on multiple columns
     this.addSql(
-      'create table "company" ("id" serial primary key, "geometry" GEOMETRY(Point,4326) not null, "reference" varchar(255) not null, "company_name" varchar(255) not null, "market_identifier" varchar(255) not null, "market_label" varchar(255) not null);',
+      'create table "company" ("id" serial primary key, "geometry" GEOMETRY(Point,4326) not null, "import_id" varchar(255) not null, "company_name" varchar(255) not null, "market_identifier" varchar(255) not null, "market_label" varchar(255) not null);',
     );
     this.addSql(
-      'alter table "company" add constraint "company_reference_unique" unique ("reference");',
+      'create index "company_import_id_index" on "company" ("import_id");',
     );
     this.addSql(
       'create index "company_geometry_index" on "company" using GIST ("geometry");',
