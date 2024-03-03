@@ -9,7 +9,7 @@ import { MapEntity } from '@/config/mikro-orm/map-entity.decorator';
 import { NafCodeRepository } from '@/companies/repositories/naf-code.repository';
 
 @MapEntity()
-@Entity()
+@Entity({ repository: () => NafCodeRepository })
 export class NafCode {
   [EntityRepositoryType]?: NafCodeRepository;
 

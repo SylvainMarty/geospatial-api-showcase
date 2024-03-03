@@ -3,6 +3,8 @@ import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
 import { GetMarketLabelsIndexedByNafCodeQuery } from '@/companies/queries/impl/get-market-labels-indexed-by-naf-code.query';
 import { NafCodeRepository } from '@/companies/repositories/naf-code.repository';
 import { Logger } from '@nestjs/common';
+import { InjectRepository } from '@mikro-orm/nestjs';
+import { NafCode } from '@/companies/entities/naf-code.entity';
 
 @QueryHandler(GetMarketLabelsIndexedByNafCodeQuery)
 export class GetMarketLabelsIndexedByNafCodeHandler
@@ -10,7 +12,10 @@ export class GetMarketLabelsIndexedByNafCodeHandler
 {
   private logger = new Logger(GetMarketLabelsIndexedByNafCodeHandler.name);
 
-  constructor(private readonly nafCodeRepository: NafCodeRepository) {}
+  constructor(
+    @InjectRepository(NafCode)
+    private readonly nafCodeRepository: NafCodeRepository,
+  ) {}
 
   async execute(
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
