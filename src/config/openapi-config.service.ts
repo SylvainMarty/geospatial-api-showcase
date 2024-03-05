@@ -10,6 +10,7 @@ export class OpenapiConfigService {
         'This API helps companies identify which places are interesting to establish a new selling point and maximize ROI.',
       )
       .setVersion('1.0')
+      .addBearerAuth()
       .build();
   }
 }

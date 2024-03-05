@@ -4,14 +4,17 @@ import {
   Controller,
   Post,
   UploadedFile,
+  UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import {
+  ApiBearerAuth,
   ApiBody,
   ApiConsumes,
   ApiOperation,
   ApiResponse,
+  ApiTags,
 } from '@nestjs/swagger';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { ImportCompaniesCommand } from '@/companies/commands/impl/import-companies.command';
@@ -26,8 +29,12 @@ import { Pagination } from '@/shared/mikro-orm/pagination';
 import { Company } from '@/companies/entities/company.entity';
 import { createPaginationDto, PaginationDto } from '@/api/dto/pagination';
 import { InvalidArgumentException } from '@/shared/exceptions/invalid-argument.exception';
+import { JwtAuthGuard } from '@/auth/jwt-auth.guard';
 
+@UseGuards(JwtAuthGuard)
 @Controller('companies')
+@ApiBearerAuth()
+@ApiTags('Companies')
 export class CompaniesController {
   constructor(
     private readonly commandBus: CommandBus,
