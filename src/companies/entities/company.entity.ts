@@ -6,8 +6,9 @@ import {
   PrimaryKey,
   Property,
 } from '@mikro-orm/core';
-import { Point, PointType } from '@/shared/mikro-orm/point.type';
+import { PointType } from '@/shared/mikro-orm/point.type';
 import { CompanyRepository } from '@/companies/repositories/company.repository';
+import { Point } from '@/shared/geometry/point';
 
 @MapEntity()
 @Entity({ repository: () => CompanyRepository })
