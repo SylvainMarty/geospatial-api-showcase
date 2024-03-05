@@ -1,6 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { LocationDto, PolygonDto } from '@/api/dto/geometry';
+import { IsPolygon, LocationDto, PolygonDto } from '@/api/dto/geometry';
 import { Company } from '@/companies/entities/company.entity';
+import { IsArray, IsInt, Max, Validate } from 'class-validator';
 
 export class GetCompaniesRequestDto {
   @ApiProperty({
@@ -13,6 +14,7 @@ export class GetCompaniesRequestDto {
       [1.4372464947027197, 43.61070566548099],
     ],
   })
+  @Validate(IsPolygon)
   polygon: PolygonDto;
 
   @ApiProperty({
@@ -24,15 +26,19 @@ export class GetCompaniesRequestDto {
       url: 'https://github.com/SocialGouv/codes-naf/blob/master/index.json',
     },
   })
+  @IsArray()
   marketIdentifiers: string[];
 
   @ApiProperty({ default: 1 })
+  @IsInt()
   page: number;
 
   @ApiProperty({
     description: 'The maximum number of element in one page (max 500)',
     default: 250,
   })
+  @IsInt()
+  @Max(500)
   limit: number = 250;
 }
 

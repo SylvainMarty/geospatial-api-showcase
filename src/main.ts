@@ -3,11 +3,12 @@ import { AppModule } from './app.module';
 import { SwaggerModule } from '@nestjs/swagger';
 import { OpenapiConfigService } from './config/openapi-config.service';
 import { ConfigService } from '@nestjs/config';
-import { INestApplication, Logger } from '@nestjs/common';
+import { INestApplication, Logger, ValidationPipe } from '@nestjs/common';
 
 async function bootstrap() {
   const logger = new Logger('Main');
   const app = await NestFactory.create(AppModule);
+  app.useGlobalPipes(new ValidationPipe());
   const configService = app.get(ConfigService);
 
   const apiDocPath = setupOpenApi(app, configService);
