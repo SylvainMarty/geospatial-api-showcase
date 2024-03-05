@@ -10,6 +10,7 @@ import { RefreshNafCodesCommand } from '@/companies/commands/impl/refresh-naf-co
 import { GetMarketLabelsIndexedByNafCodeHandler } from '@/companies/queries/handlers/get-market-labels-indexed-by-naf-code.handler';
 import { NafCodeRepository } from '@/companies/repositories/naf-code.repository';
 import { CompanyRepository } from '@/companies/repositories/company.repository';
+import { ImportStrategiesModule } from '@/companies/import-strategies/import-strategies.module';
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { CompanyRepository } from '@/companies/repositories/company.repository';
     HttpModule.register({
       timeout: 5000,
     }),
+    ImportStrategiesModule,
   ],
   providers: [
     NafCodeRepository,

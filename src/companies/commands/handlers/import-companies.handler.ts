@@ -5,7 +5,7 @@ import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { InjectRepository } from '@mikro-orm/nestjs';
 import { ImportCompaniesCommand } from '@/companies/commands/impl/import-companies.command';
 import { AbstractImportStrategy } from '@/companies/import-strategies/abstract-import.strategy';
-import { COMPANIES_STRATEGIES_CLASSES } from '@/companies/constants';
+import { COMPANIES_STRATEGIES_CLASSES } from '@/companies/import-strategies/constants';
 import { FastJsonParser } from '@/shared/helpers/fast-json.parser';
 import { FileDto } from '@/shared/dto/file.dto';
 import { Company } from '@/companies/entities/company.entity';

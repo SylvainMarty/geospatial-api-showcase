@@ -6,7 +6,7 @@ import { FileDto } from '@/shared/dto/file.dto';
 import { InvalidArgumentException } from '@/shared/exceptions/invalid-argument.exception';
 import { FastJsonParser } from '@/shared/helpers/fast-json.parser';
 import { Company } from '@/companies/entities/company.entity';
-import { COMPANIES_STRATEGIES_CLASSES } from '@/companies/constants';
+import { COMPANIES_STRATEGIES_CLASSES } from '@/companies/import-strategies/constants';
 import { ImportCompaniesHandler } from '@/companies/commands/handlers/import-companies.handler';
 import { ImportCompaniesCommand } from '@/companies/commands/impl/import-companies.command';
 import { AbstractImportStrategy } from '@/companies/import-strategies/abstract-import.strategy';
