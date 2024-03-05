@@ -1,20 +1,64 @@
 import {
   BadRequestException,
+  Body,
   Controller,
   Post,
   UploadedFile,
   UseInterceptors,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { ApiBody, ApiConsumes, ApiOperation } from '@nestjs/swagger';
-import { CommandBus } from '@nestjs/cqrs';
+import {
+  ApiBody,
+  ApiConsumes,
+  ApiOperation,
+  ApiResponse,
+} from '@nestjs/swagger';
+import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { ImportCompaniesCommand } from '@/companies/commands/impl/import-companies.command';
 import { FileDto } from '@/shared/dto/file.dto';
+import { GetPaginatedCompaniesQuery } from '@/companies/queries/impl/get-paginated-companies.query';
+import {
+  GetCompaniesRequestDto,
+  GetCompaniesResponseDto,
+} from '@/api/companies/dto/get-companies.dto';
+import { convertDtoToPolygon } from '@/api/dto/geometry';
+import { Pagination } from '@/shared/mikro-orm/pagination';
+import { Company } from '@/companies/entities/company.entity';
+import { createPaginationDto, PaginationDto } from '@/api/dto/pagination';
 import { InvalidArgumentException } from '@/shared/exceptions/invalid-argument.exception';
 
 @Controller('companies')
 export class CompaniesController {
-  constructor(private readonly commandBus: CommandBus) {}
+  constructor(
+    private readonly commandBus: CommandBus,
+    private readonly queryBus: QueryBus,
+  ) {}
+
+  @Post()
+  @ApiOperation({
+    description:
+      'Get companies filtered by polygon and/or market identifiers (ex: french NAF codes) sorted by company name',
+  })
+  @ApiBody({ type: GetCompaniesRequestDto })
+  @ApiResponse({ type: createPaginationDto(GetCompaniesResponseDto) })
+  async getCompanies(@Body() dto: GetCompaniesRequestDto) {
+    const paginatedResults = await this.queryBus.execute<
+      GetPaginatedCompaniesQuery,
+      Pagination<Company>
+    >(
+      new GetPaginatedCompaniesQuery(
+        convertDtoToPolygon(dto.polygon),
+        dto.marketIdentifiers,
+        dto.page,
+        dto.limit,
+      ),
+    );
+    return new PaginationDto<GetCompaniesResponseDto>(
+      paginatedResults.results.map(GetCompaniesResponseDto.createFromCompany),
+      paginatedResults.pageCount,
+      paginatedResults.totalCount,
+    );
+  }
 
   @Post('/import')
   @ApiOperation({
