@@ -31,6 +31,15 @@ export class ImportCompaniesHandler
       COMPANIES_STRATEGIES_CLASSES,
       { each: true },
     );
+    if (
+      this.strategies.find(
+        (strategy) => !(strategy instanceof AbstractImportStrategy),
+      )
+    ) {
+      throw new InvalidArgumentException(
+        'A strategy must inherit from AbstractImportStrategy',
+      );
+    }
     const strategyNames = this.strategies.map((s) => s.constructor.name);
     this.logger.log(
       `${this.strategies.length} company import strategies found: ${strategyNames.join(', ')}`,
