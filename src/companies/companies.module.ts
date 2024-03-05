@@ -10,6 +10,7 @@ import { RefreshNafCodesCommand } from '@/companies/commands/impl/refresh-naf-co
 import { GetMarketLabelsIndexedByNafCodeHandler } from '@/companies/queries/handlers/get-market-labels-indexed-by-naf-code.handler';
 import { NafCodeRepository } from '@/companies/repositories/naf-code.repository';
 import { CompanyRepository } from '@/companies/repositories/company.repository';
+import { GetPaginatedCompaniesHandler } from '@/companies/queries/handlers/get-paginated-companies.handler';
 import { ImportStrategiesModule } from '@/companies/import-strategies/import-strategies.module';
 
 @Module({
@@ -27,6 +28,7 @@ import { ImportStrategiesModule } from '@/companies/import-strategies/import-str
     RefreshNafCodesHandler,
     GetMarketLabelsIndexedByNafCodeHandler,
     ImportCompaniesHandler,
+    GetPaginatedCompaniesHandler,
   ],
 })
 export class CompaniesModule implements OnApplicationBootstrap {
