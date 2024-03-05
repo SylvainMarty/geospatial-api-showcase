@@ -8,6 +8,7 @@ import { RefreshNafCodesHandler } from '@/companies/commands/handlers/refresh-na
 import { RefreshNafCodesCommand } from '@/companies/commands/impl/refresh-naf-codes.command';
 import { GetMarketLabelsIndexedByNafCodeHandler } from '@/companies/queries/handlers/get-market-labels-indexed-by-naf-code.handler';
 import { NafCodeRepository } from '@/companies/repositories/naf-code.repository';
+import { CompanyRepository } from '@/companies/repositories/company.repository';
 
 @Module({
   imports: [
@@ -19,6 +20,7 @@ import { NafCodeRepository } from '@/companies/repositories/naf-code.repository'
   ],
   providers: [
     NafCodeRepository,
+    CompanyRepository,
     RefreshNafCodesHandler,
     GetMarketLabelsIndexedByNafCodeHandler,
   ],
