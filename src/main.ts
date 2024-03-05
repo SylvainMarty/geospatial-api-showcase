@@ -13,6 +13,9 @@ async function bootstrap() {
 
   const apiDocPath = setupOpenApi(app, configService);
 
+  // Starts listening for shutdown hooks
+  app.enableShutdownHooks();
+
   const port = configService.get('API_PORT');
   await app.listen(port);
 
