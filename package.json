@@ -18,7 +18,6 @@
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
-    "test:e2e": "jest --config ./test/jest-e2e.json",
     "mikroorm": "MIKRO_ORM_ENTITIES=./dist/**/*.entity.js yarn mikro-orm",
     "migration:generate": "yarn build && yarn mikroorm migration:create",
     "migration:create": "yarn mikroorm migration:create --blank",
