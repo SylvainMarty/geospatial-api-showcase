@@ -25,7 +25,6 @@ export class PaginationDto<T> {
  */
 export function createPaginationDto<TBase extends Constructor>(Base: TBase) {
   class TypedPaginationDto extends PaginationDto<TBase> {
-    // @ts-ignore
     @ApiProperty({
       isArray: true,
       type: Base,
