@@ -1,5 +1,6 @@
 import { Test } from '@nestjs/testing';
-import { NafCodeRepository } from '@/companies/repositories/naf-code.repository';
+import { getRepositoryToken } from '@mikro-orm/nestjs';
+import { NafCode } from '@/companies/entities/naf-code.entity';
 import { GetMarketLabelsIndexedByNafCodeHandler } from '@/companies/queries/handlers/get-market-labels-indexed-by-naf-code.handler';
 import { GetMarketLabelsIndexedByNafCodeQuery } from '@/companies/queries/impl/get-market-labels-indexed-by-naf-code.query';
 
@@ -11,7 +12,7 @@ describe('GetMarketLabelsIndexedByNafCodeHandler', () => {
     jest.resetAllMocks();
     const module = await Test.createTestingModule({
       providers: [
-        { provide: NafCodeRepository, useValue: nafCodeRepository },
+        { provide: getRepositoryToken(NafCode), useValue: nafCodeRepository },
         GetMarketLabelsIndexedByNafCodeHandler,
       ],
     }).compile();
