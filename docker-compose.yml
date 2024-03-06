@@ -17,7 +17,7 @@ services:
     build:
       context: .
     environment:
-      MIKRO_ORM_HOST: postgresql
+      MIKRO_ORM_HOST: companies-api_postgresql
       MIKRO_ORM_USER: population-stats-api
       MIKRO_ORM_PASSWORD: ThisIsNotASecurePassword
       MIKRO_ORM_DB_NAME: population-stats-api
