@@ -1,9 +1,9 @@
-population-stats-api-test
+companies-geospatial-api-test
 =========================
 This is a technical solution for a hiring test about creating a population statistics API using GeoJSON raw sources.
 This project uses NestJS, TypeScript, PostgreSQL, and PostGIS.
 
-# Run the project
+# 🚀 Run the project
 ## Prerequisite
 You need:
  - A linux-compatible machine like Ubuntu, MacOSX or Windows WSL2
@@ -31,17 +31,17 @@ To test the project:
 
 -------------
 
-# The challenge
-## 🎯 Objective
+# Technical test challenge
+## Objective
 To propose an API that provides access to population and business data provided in the appendix.
 - Geographical filter
 - Filter based on various criteria to be defined
 - Data returned in aggregated Json format.
 
-## ✅ Expectations
+## Expectations
 We do not expect an exhaustive answer, but rather a scope that you are free to define on the subject.
 
-## 💽 The Data
+## The Data
 You will find sample data corresponding to the exercise in the `geodata/` folder:
 - tls-businesses.geojson
 - hg-census-2016.geojson
@@ -220,7 +220,7 @@ I chose to isolate business logic in services that follows the CQRS pattern.
 I am used to this pattern and I think it allows developers to write more focused pieces of software since a handler has only one public method.
 Yes, it comes at the cost of simplicity: it isn't always easy to navigate between usages and implementation.
 
-### Import companies
+### Import companies from large GeoJSON files
 I use the [simdjson_nodejs](https://github.com/luizperes/simdjson_nodejs) library to read the big json files.
 It is faster than JSON.parse() and more memory efficient because the library only parse sub parts of the file.
 
