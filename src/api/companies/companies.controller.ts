@@ -41,7 +41,7 @@ export class CompaniesController {
     private readonly queryBus: QueryBus,
   ) {}
 
-  @Post()
+  @Post('/search')
   @ApiOperation({
     description:
       'Get companies filtered by polygon and/or market identifiers (ex: french NAF codes) sorted by company name',
@@ -67,7 +67,7 @@ export class CompaniesController {
     );
   }
 
-  @Post('/import')
+  @Post()
   @ApiOperation({
     description:
       'Upload companies to the database from a GeoJSON file and override exiting entries if they exists',
