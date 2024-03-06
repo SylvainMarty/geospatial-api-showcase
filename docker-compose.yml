@@ -1,0 +1,28 @@
+version: "3"
+
+services:
+  postgresql:
+    container_name: companies-api_postgresql
+    image: postgis/postgis:16-3.4
+    environment:
+      POSTGRES_DB: population-stats-api
+      POSTGRES_USER: population-stats-api
+      POSTGRES_PASSWORD: ThisIsNotASecurePassword
+    ports:
+      - 5432:5432
+
+  companies-api:
+    container_name: companies-api_service
+    image: companies-api_service
+    build:
+      context: .
+    environment:
+      MIKRO_ORM_HOST: postgresql
+      MIKRO_ORM_USER: population-stats-api
+      MIKRO_ORM_PASSWORD: ThisIsNotASecurePassword
+      MIKRO_ORM_DB_NAME: population-stats-api
+    ports:
+      - 3000:3000
+    depends_on:
+      - postgresql
+    command: ["sh", "startService.sh", "start:prod"]
