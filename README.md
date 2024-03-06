@@ -1,6 +1,7 @@
 companies-geospatial-api-test
 =========================
 This is a technical solution for a hiring test about creating a population statistics API using GeoJSON raw sources.
+
 This project uses NestJS, TypeScript, PostgreSQL, and PostGIS.
 
 # 🚀 Run the project
@@ -158,7 +159,9 @@ Those two information combined can help companies identify which places are inte
 
 ### A list of companies
 Each company should include their NAF Code and the associated market activity label.
+
 The market activity label will have to be found in a dictionary of all market activity label by NAF code.
+
 
 Useful filters:
 - geographic (polygon)
@@ -172,6 +175,7 @@ Useful filters:
 
 ## 2. Geospatial index
 This section's goal is to answer this question: what geospatial database solution should I use to have a performant and scalable system?
+
 This challenge as 2 big difficulties:
 1. We need an efficient way to **filter** the geospatial data that **intersect** or is **within** a polygon for our geospatial search to work
 2. We need an efficient way to **filter** based on the properties (NAF code, range of ages)
@@ -188,7 +192,9 @@ For this test, I am going to use the PostgreSQL and the PostGIS extension:
 
 ## 2. Technical solution scope
 For this test, I only have access to french companies, so I am not going to ingest US census data because it would not be enough to answer the need I interpreted in section 1.
+
 Since it is the first time I use a geospatial database, I prefer to focus on a smaller scope that will include ingesting data and searching efficiently into companies.
+
 My idea is to create a system can be easily extended to import companies from other GeoJSON files than the one provided for the test (see the section **4. System design** > **Import companies**).
 
 ## 3. Companies raw data normalization
@@ -210,24 +216,31 @@ Here is how companies properties are going to look after normalization:
 ```
 
 With PostGIS, I can choose between Geometry or Geography types to store the multipolygons of each entry.
+
 In my case, I don't need to have accurate geographic distances and using a planar reference (from the geometry type) is enough to answer my needs.
+
 
 To filter the companies from a polygon, I chose to use the `ST_Intersect()` function instead of `ST_Within()` because I found the latter too exclusive: it was giving less predictable results from a user point of view.
 
 ## 4. System architecture
 ### CQRS: Command and Query Responsibility Segregation
 I chose to isolate business logic in services that follows the CQRS pattern.
+
 I am used to this pattern and I think it allows developers to write more focused pieces of software since a handler has only one public method.
+
 Yes, it comes at the cost of simplicity: it isn't always easy to navigate between usages and implementation.
 
 ### Import companies from large GeoJSON files
 I use the [simdjson_nodejs](https://github.com/luizperes/simdjson_nodejs) library to read the big json files.
+
 It is faster than JSON.parse() and more memory efficient because the library only parse sub parts of the file.
 
 NAF codes data is stored in PostgreSQL. The data is fetched when the app starts for the first time.
 
 To make the import system easily extensible, I implemented the Strategy pattern.
+
 The idea of this pattern is to remove conditions and switches to decide which code should be executed.
+
 Instead, it uses Nest dependency injection system to get a list of classes that implements an abstract class (it should be an interface but TypeScript being JavaScript...).
 
 This abstract class provides 3 abstract methods that are taking the file in parameter:
@@ -235,7 +248,9 @@ This abstract class provides 3 abstract methods that are taking the file in para
 - `getImportId(file)`: return the unique identifier of the import (used to deal with companies import collision)
 - `generateCompany(file)`: a generator function that **yield** a `Company` entity every time it found one in the file
 
+
 Creating a strategy means create a class that inherits this abstract class and its methods.
+
 When the implementation is done, register the class in the `ImportStrategiesModule` like this:
 ```js
 @Module({
@@ -255,6 +270,7 @@ export class ImportStrategiesModule {}
 ```
 
 The ImportCompaniesHandler will automatically see the new strategy in the list (it uses the ModuleRef service of Nest).
+
 Each strategy can be tested individually, making this pattern simple and useful when we want to give a system some room to expand.
 
 ## Project File structure
@@ -267,14 +283,14 @@ src/
 ├── shared                  Contains classes & helpers shared with all modules
 ├── auth                    Contains the authentication module and Passport classes (with in memory users, etc.) 
 ├── api/                    Contains everything related to the Rest API layer
-│   ├── auth/
+│   ├── auth/               Contains API routes & DTOs for authentication
 │   │   └── dto
-│   ├── companies/
+│   ├── companies/          Contains API routes & DTOs for the companies domain
 │   │   └── dto
-│   └── dto
+│   └── dto                 Contains shared DTOs accross API domains
 └── companies/              The module for the companies business code
-    ├── entities
-    ├── repositories
+    ├── entities            ORM entities
+    ├── repositories        ORM custom repositories
     ├── import-strategies   Contains the module and the strategies to import companies data
     ├── commands/           Command & handlers that can write the DB
     │   ├── handlers
@@ -287,12 +303,16 @@ src/
 ## 5. Retrospective
 ### API performances
 #### Importing companies
-I chose to insert a batch of companies in the DB every 2500 companies. 
+I chose to insert a batch of companies in the DB every 2500 companies.
+
+
 It is taking around 3 seconds in total to import 96,515 entries (response time).
+
 The response time stayed at 3 seconds even when the DB had 1M entries.
 
 #### Searching companies
 For this part, I used artillery to perform simple load testing to see how the response time increase when the number of data in the DB gets bigger.
+
 Tests were executed in local and a PostgreSQL + PostGIS in a Docker container.
 
 **Artillery summary report (response times are in milliseconds) for 96,515 entries in DB:**
@@ -350,31 +370,46 @@ vusers.session_length:
 ```
 
 **Conclusion:**
-I multiplied by 10 the number of data in the DB and the mediam response time are only multiplied by 5: it is a good start.
+
+I multiplied by 10 the number of data in the DB and the median response time are only multiplied by 5: it is a good start.
+
 I think the Artillery load tests could be improved to introduce different filters to see how the DB performs with less predictable queries.
 
 ### Data improvements
 The usage of the current ORM is limited: MikroORM doesn't support PostGIS types and functions out of the box so I had to write native queries.
+
 For a small project, using a library like Knex would have been easier and smaller.
+
 For a project which is going to grow, I would stick to use an ORM for better maintainability.
 
 It would improve user experience to be able to search by already defined area like a city, a region, etc.
+
 This means we would have to store the polygons that corresponds to a defined area.
+
 By storing the polygons of a defined area, we could pre-process the statistics for this area to deliver the result instantaneously.
+
 It would also mean implementing a solution to update the statistics of defined area when their data changes.
 
 ### Code improvements
 For a larger project, it would be useful to avoid leaking ORM entities to external modules.
+
 To achieve this, we could use DTOs or a more heavy architecture like the hexagonal architecture.
+
 With the current structure of the business code, it would not be difficult to add this clear layer of isolation.
 
 For now, collision of companies in the DB is not implemented.
+
 The system deletes the previous import before importing the new data.
+
 It means the property `name` at the root of GeoJSON MUST be set correctly to avoid duplicates.
+
 Deleting the <100k entries takes ~70ms.
 
+
 There is a workaround in the `CompanyRepository` that introduces an SQL injection vulnerability:
+
 A safe solution should be found before considering to send this code in production.
+
 Here is what I would expect to work with MikroORM query builder:
 ```ts
 public async findPaginatedCompaniesFromPolygonAndMarketIdentifies(
@@ -410,7 +445,9 @@ public async findPaginatedCompaniesFromPolygonAndMarketIdentifies(
 
 ### Infra improvement
 If there is a lot of traffic on the API, I would create different apps that serves the public facing endpoints and the import endpoints.
+
 Importing large files can be resource intensive: importing a large GeoJSON file should not slow down the rest of the application.
+
 Also, in production, the HTTP server upload limits need to be different: we want to allow very large files to be uploaded on one end, and we should not allow that kind of requests on public facing endpoints for security reasons.
 
 -------------
@@ -418,7 +455,9 @@ Also, in production, the HTTP server upload limits need to be different: we want
 # Contribute
 ## Prerequisite
 You need a PosgreSQL with PostGIS installed.
+
 I tested with PosgreSQL 16 and PostGIS 3.4.
+
 
 In local, I used Node 20 (there is `.nvmrc` file at the root of the folder if you use NVM).
 
