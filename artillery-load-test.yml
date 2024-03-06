@@ -1,0 +1,44 @@
+config:
+  target: "http://localhost:3000"
+  phases:
+    - duration: 20
+      arrivalRate: 5
+      rampTo: 10
+      name: Warm up the API
+    - duration: 20
+      arrivalRate: 10
+      rampTo: 50
+      name: Ramp up to peak load
+    - duration: 20
+      arrivalRate: 50
+      name: Sustained peak load
+
+before:
+  flow:
+    - log: "Get auth token"
+    - post:
+        url: "/auth/login"
+        json:
+          username: "chuck"
+          password: "norris"
+        capture:
+          - json: $.accessToken
+            as: token
+
+scenarios:
+  - flow:
+    - post:
+        url: "/companies/search"
+        headers:
+          authorization: "Bearer {{ token }}"
+        json:
+          polygon:
+            - [1.4372464947027197, 43.61070566548099]
+            - [1.4372464947027197, 43.592870094963246]
+            - [1.4730804078930078, 43.592870094963246]
+            - [1.4730804078930078, 43.61070566548099]
+            - [1.4372464947027197, 43.61070566548099]
+          marketIdentifiers:
+            - "58.21Z"
+          page: 1
+          limit: 250
