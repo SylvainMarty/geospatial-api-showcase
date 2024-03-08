@@ -1,5 +1,7 @@
 geospatial-api-showcase
 =========================
+![CI workflow](https://github.com/SylvainMarty/geospatial-api-showcase/actions/workflows/ci.yml/badge.svg)
+
 This project is a showcase of my skills and methodology for building REST API backend written in TypeScript using NestJS.
 
 The goal of this project is to provide a REST API that could be used to find concurrent companies in a specific geographic area.

@@ -1,0 +1,32 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - '**'
+  pull_request:
+    types: [ opened, synchronize ]
+
+jobs:
+  ci:
+    name: Test suite
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Setup Node
+        uses: actions/setup-node@v3
+        with:
+          node-version-file: '.nvmrc'
+          registry-url: 'https://npm.pkg.github.com'
+      - name: Caching dependencies
+        uses: actions/cache@v3
+        with:
+          path: '**/node_modules'
+          key: ${{ runner.os }}-modules-${{ hashFiles('**/yarn.lock') }}
+      - name: Install
+        run: yarn install
+      - name: Lint code
+        run: yarn lint
+      - name: Run tests
+        run: yarn test
