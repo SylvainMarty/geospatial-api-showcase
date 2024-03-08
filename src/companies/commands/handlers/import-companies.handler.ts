@@ -12,7 +12,7 @@ import { Company } from '@/companies/entities/company.entity';
 import { CompanyRepository } from '@/companies/repositories/company.repository';
 import { InvalidArgumentException } from '@/shared/exceptions/invalid-argument.exception';
 
-const COMPANY_SAVE_BATCH_SIZE = 2500;
+const COMPANY_SAVE_BATCH_SIZE = 10_000;
 
 @CommandHandler(ImportCompaniesCommand)
 export class ImportCompaniesHandler
