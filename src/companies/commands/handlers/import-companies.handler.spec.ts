@@ -142,10 +142,10 @@ describe('ImportCompaniesHandler', () => {
     expect(companyRepository.insertManyNative).toHaveBeenCalled();
   });
 
-  it('insert companies in the DB but in batches of 2500', async () => {
+  it('insert companies in the DB but in batches of 10000', async () => {
     const file = new FileDto(
       'test-file',
-      Buffer.from('{"name": "test-file","companyCount":3000}', 'utf-8'),
+      Buffer.from('{"name": "test-file","companyCount":12000}', 'utf-8'),
     );
 
     await handler.execute(new ImportCompaniesCommand(file));
