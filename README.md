@@ -59,6 +59,7 @@ I tested with PosgreSQL 16 and PostGIS 3.4.
 In local, I used Node v20 (there is `.nvmrc` file at the root of the folder if you use NVM).
 
 ## Installation
+Run this command:
 ```bash
 $ yarn install
 ```
@@ -71,6 +72,11 @@ MIKRO_ORM_USER=population-stats-api
 MIKRO_ORM_PASSWORD=ThisIsNotASecurePassword
 MIKRO_ORM_DB_NAME=population-stats-api
 MIKRO_ORM_LOGGING=true
+```
+
+Run this last command (your local DB must be running):
+```bash
+$ yarn run migration:run:local
 ```
 
 ## Running the app

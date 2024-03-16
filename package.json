@@ -23,6 +23,7 @@
     "migration:create": "yarn mikroorm migration:create --blank",
     "migration:pending": "yarn mikroorm migration:pending",
     "migration:run": "yarn mikroorm migration:up",
+    "migration:run:local": "export $(cat .env.local | xargs) && yarn migration:run",
     "migration:revert": "yarn mikroorm migration:down",
     "start:load-tests": "artillery run artillery-load-test.yml"
   },
