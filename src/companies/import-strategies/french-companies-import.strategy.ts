@@ -23,41 +23,41 @@ export class FrenchCompaniesImportStrategy extends AbstractImportStrategy {
     super();
   }
 
-  public supportsImport(json: FastJsonParser): boolean {
+  public async supportsImport(json: FastJsonParser): Promise<boolean> {
     try {
       if (
-        json.getParsedValueFromKey<string>('type') !== 'FeatureCollection' ||
-        json.getParsedValueFromKey<string>('crs.properties.name') !==
+        (await json.getParsedValueFromKey<string>('type').next()).value !== 'FeatureCollection' ||
+        (await json.getParsedValueFromKey<string>('crs.properties.name').next()).value !==
           'urn:ogc:def:crs:OGC:1.3:CRS84'
       ) {
         return false;
       }
 
-      const firstFeoJsonFeatureProps = json.getParsedValueFromKey<
+      const firstFeoJsonFeatureProps = (await json.getParsedValueFromKey<
         Record<string, unknown>
-      >('features[0].properties');
+      >('features', { isArray: true }).next()).value?.properties;
       return (
-        !!firstFeoJsonFeatureProps.denomination &&
-        !!firstFeoJsonFeatureProps.activiteprincipaleetablissement
+        !!firstFeoJsonFeatureProps?.denomination &&
+        !!firstFeoJsonFeatureProps?.activiteprincipaleetablissement
       );
     } catch (error) {
       return false;
     }
   }
 
-  public getImportId(json: FastJsonParser): string {
-    return json.getParsedValueFromKey<string>('name');
+  public async getImportId(json: FastJsonParser): Promise<string> {
+    return (await json.getParsedValueFromKey<string>('name').next()).value;
   }
 
   public async *generateCompany(json: FastJsonParser): AsyncGenerator<Company> {
-    const importGeoJsonRef = json.getParsedValueFromKey<string>('name');
+    const importGeoJsonRef = (await json.getParsedValueFromKey<string>('name').next()).value;
     const marketLabelsByNafCode = await this.queryBus.execute<
       GetMarketLabelsIndexedByNafCodeQuery,
       Record<string, string>
     >(new GetMarketLabelsIndexedByNafCodeQuery());
     const features =
-      json.getParsedValueFromKey<Array<FeatureContent>>('features');
-    for (const feature of features) {
+      json.getParsedValueFromKey<FeatureContent>('features', { isArray: true });
+    for await (const feature of features) {
       const company = new Company();
       company.companyName = feature.properties.denomination;
       company.marketIdentifier =

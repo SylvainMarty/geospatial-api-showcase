@@ -62,17 +62,17 @@ describe('FrenchCompaniesImportStrategy', () => {
 
   describe('supportsImport', () => {
     it('returns true when the GeoJSON is fully supported', async () => {
-      const jsonParser = new FastJsonParser(JSON.stringify(validGeoJson));
+      const jsonParser = new FastJsonParser(Buffer.from(JSON.stringify(validGeoJson)));
 
-      const result = strategy.supportsImport(jsonParser);
+      const result = await strategy.supportsImport(jsonParser);
 
       expect(result).toStrictEqual(true);
     });
 
     it('returns false when the JSON file does not contain the properties needed', async () => {
-      const jsonParser = new FastJsonParser('{}');
+      const jsonParser = new FastJsonParser(Buffer.from('{}'));
 
-      const result = strategy.supportsImport(jsonParser);
+      const result = await strategy.supportsImport(jsonParser);
 
       expect(result).toStrictEqual(false);
     });
@@ -81,9 +81,9 @@ describe('FrenchCompaniesImportStrategy', () => {
       const invalidGeoJson = {
         type: 'SomeOtherType',
       };
-      const jsonParser = new FastJsonParser(JSON.stringify(invalidGeoJson));
+      const jsonParser = new FastJsonParser(Buffer.from(JSON.stringify(invalidGeoJson)));
 
-      const result = strategy.supportsImport(jsonParser);
+      const result = await strategy.supportsImport(jsonParser);
 
       expect(result).toStrictEqual(false);
     });
@@ -98,9 +98,9 @@ describe('FrenchCompaniesImportStrategy', () => {
           },
         },
       };
-      const jsonParser = new FastJsonParser(JSON.stringify(invalidGeoJson));
+      const jsonParser = new FastJsonParser(Buffer.from(JSON.stringify(invalidGeoJson)));
 
-      const result = strategy.supportsImport(jsonParser);
+      const result = await strategy.supportsImport(jsonParser);
 
       expect(result).toStrictEqual(false);
     });
@@ -124,30 +124,30 @@ describe('FrenchCompaniesImportStrategy', () => {
           },
         ],
       };
-      const jsonParser = new FastJsonParser(JSON.stringify(invalidGeoJson));
+      const jsonParser = new FastJsonParser(Buffer.from(JSON.stringify(invalidGeoJson)));
 
-      const result = strategy.supportsImport(jsonParser);
+      const result = await strategy.supportsImport(jsonParser);
 
       expect(result).toStrictEqual(false);
     });
   });
 
   describe('getImportId', () => {
-    it('returns the value of "name" property in the GeoJSON', () => {
-      const jsonParser = new FastJsonParser(JSON.stringify(validGeoJson));
+    it('returns the value of "name" property in the GeoJSON', async () => {
+      const jsonParser = new FastJsonParser(Buffer.from(JSON.stringify(validGeoJson)));
 
-      const result = strategy.getImportId(jsonParser);
+      const result = await strategy.getImportId(jsonParser);
 
       expect(result).toEqual('some-businesses');
     });
 
-    it('throws an error when the property "name" does not exist', () => {
+    it('throws an error when the property "name" does not exist', async () => {
       const invalidGeoJson = {
         type: 'FeatureCollection',
       };
-      const jsonParser = new FastJsonParser(JSON.stringify(invalidGeoJson));
+      const jsonParser = new FastJsonParser(Buffer.from(JSON.stringify(invalidGeoJson)));
 
-      expect(() => strategy.getImportId(jsonParser)).toThrow(
+      expect(strategy.getImportId(jsonParser)).rejects.toThrow(
         InvalidArgumentException,
       );
     });
@@ -155,7 +155,7 @@ describe('FrenchCompaniesImportStrategy', () => {
 
   describe('generateCompany', () => {
     it('returns an async generator that yield 2 companies', async () => {
-      const jsonParser = new FastJsonParser(JSON.stringify(validGeoJson));
+      const jsonParser = new FastJsonParser(Buffer.from(JSON.stringify(validGeoJson)));
       queryBusMock.execute.mockResolvedValue({
         '72.20Z': 'Recherche-développement en sciences humaines et sociales',
         '47.71Z': "Commerce de détail d'habillement en magasin spécialisé",
@@ -188,7 +188,7 @@ describe('FrenchCompaniesImportStrategy', () => {
       const invalidGeoJson = {
         type: 'FeatureCollection',
       };
-      const jsonParser = new FastJsonParser(JSON.stringify(invalidGeoJson));
+      const jsonParser = new FastJsonParser(Buffer.from(JSON.stringify(invalidGeoJson)));
 
       const generator = strategy.generateCompany(jsonParser);
 

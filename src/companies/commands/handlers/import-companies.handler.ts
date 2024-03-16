@@ -49,16 +49,16 @@ export class ImportCompaniesHandler
   async execute(command: ImportCompaniesCommand): Promise<any> {
     this.logger.debug('Importing companies in the database');
     const startTime = performance.now();
-    const jsonParser = this.parseAndVerifyGeoJson(command.file);
-    const importStrategy = this.findStategy(jsonParser);
+    const jsonParser = await this.parseAndVerifyGeoJson(command.file);
+    const importStrategy = await this.findStategy(jsonParser);
     const iterator = importStrategy.generateCompany(jsonParser);
     const em = this.companyRepository.getEntityManager();
     await em.begin();
-    let counter;
+    let counter = 0;
     try {
-      await this.deleteOutdatedEntries(importStrategy.getImportId(jsonParser));
+      await this.deleteOutdatedEntries(await importStrategy.getImportId(jsonParser));
 
-      counter = await this.batchInsertCompanies(iterator, startTime);
+      counter += await this.batchInsertCompanies(iterator, startTime);
       await em.commit();
     } catch (error) {
       await em.rollback();
@@ -70,10 +70,12 @@ export class ImportCompaniesHandler
     );
   }
 
-  private findStategy(json: FastJsonParser): AbstractImportStrategy {
+  private async findStategy(json: FastJsonParser): Promise<AbstractImportStrategy> {
+    const startTime = performance.now();
     for (const strategy of this.strategies) {
-      if (strategy.supportsImport(json)) {
-        this.logger.log(`Import strategy found: ${strategy.constructor.name}`);
+      if (await strategy.supportsImport(json)) {
+        const endTime = performance.now();
+        this.logger.log(`Import strategy found in ${endTime - startTime}ms: ${strategy.constructor.name}`);
         return strategy;
       }
     }
@@ -82,12 +84,12 @@ export class ImportCompaniesHandler
     throw new InvalidArgumentException('No strategy found for this file');
   }
 
-  private parseAndVerifyGeoJson(file: FileDto): FastJsonParser {
-    const json = file.buffer.toString();
-    if (!FastJsonParser.isValid(json)) {
+  private async parseAndVerifyGeoJson(file: FileDto): Promise<FastJsonParser> {
+    const parser = new FastJsonParser(file.buffer);
+    if (!(await parser.isValid())) {
       throw new InvalidArgumentException('Invalid JSON file');
     }
-    return new FastJsonParser(json);
+    return parser;
   }
 
   private async deleteOutdatedEntries(importId: string) {
@@ -102,9 +104,9 @@ export class ImportCompaniesHandler
   }
 
   private async batchInsertCompanies(
-    iterator: Generator<Company> | AsyncGenerator<Company>,
+    iterator: AsyncGenerator<Company>,
     startTime: number,
-  ) {
+  ): Promise<number> {
     let counter = 0;
     let batchCompanies = [];
     for await (const company of iterator) {

@@ -13,18 +13,22 @@ import { AbstractImportStrategy } from '@/companies/import-strategies/abstract-i
 
 @Injectable()
 class TestCompaniesImportStategy extends AbstractImportStrategy {
-  public supportsImport(json: FastJsonParser): boolean {
-    return json.getParsedValueFromKey('name') === 'test-file';
+  public async supportsImport(json: FastJsonParser): Promise<boolean> {
+    try {
+      return (await json.getParsedValueFromKey('name').next()).value === 'test-file'
+        && typeof (await json.getParsedValueFromKey('companyCount').next()).value === 'number';
+    } catch (error) {
+      return false;
+    }
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  public getImportId(json: FastJsonParser): string {
+  public async getImportId(json: FastJsonParser): Promise<string> {
     return 'test-file-import';
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  public *generateCompany(json: FastJsonParser): Generator<Company> {
-    const companyCount = json.getParsedValueFromKey<number>('companyCount');
+  public async *generateCompany(json: FastJsonParser): AsyncGenerator<Company> {
+    const companyCount = (await json.getParsedValueFromKey<number>('companyCount').next()).value;
     for (let i = 0; i < companyCount; i++) {
       yield new Company();
     }
